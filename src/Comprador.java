@@ -1,8 +1,21 @@
-public class Comprador extends Usuario{
-    public double saldo;
+public class Comprador extends Usuario {
+    private double saldo;
 
-    public Comprador(int id, String nome, String email, String telefone) {
-        super(id, nome, email, telefone);
+    public Comprador(String nome, String email, String telefone, double saldo) {
+        super(nome, email, telefone);
         this.saldo = saldo;
+    }
+
+    public double getSaldo() {
+        return saldo;
+    }
+
+    public void setSaldo(double saldo) {
+        this.saldo = saldo;
+    }
+
+    @Override
+    public String getTipo() {
+        return "Comprador";
     }
 }

@@ -1,12 +1,57 @@
+import java.util.Scanner;
+
 public class Main {
     public static void main(String[] args) {
+        Scanner input = new Scanner(System.in);
+        int COUNT = 0;
 
-        Usuario u1 = new Usuario(1, "Flavio", "flavio@email.com", "9999");
-        Usuario u2 = new Usuario(2, "Joao", "joao@email.com", "8888");
+        while (COUNT < 2) {
+            System.out.println("\nCadastro do usuário " + (COUNT + 1));
+            System.out.println("1 - Comprador");
+            System.out.println("2 - Vendedor");
 
-        Usuario.cadastrarUsuario(u1);
-        Usuario.cadastrarUsuario(u2);
+            int type = input.nextInt();
+            input.nextLine();
+
+            System.out.print("Nome: ");
+            String nome = input.nextLine();
+
+            System.out.print("Email: ");
+            String email = input.nextLine();
+
+            System.out.print("Telefone: ");
+            String telefone = input.nextLine();
+
+            switch (type) {
+                case 1:
+                    System.out.print("Saldo do comprador: ");
+                    double saldo = input.nextDouble();
+                    input.nextLine();
+
+                    Usuario comprador = new Comprador(nome, email, telefone, saldo);
+                    Usuario.cadastrarUsuario(comprador);
+                    COUNT++;
+                    break;
+
+                case 2:
+                    System.out.print("Extrato do vendedor: ");
+                    double extrato = input.nextDouble();
+                    input.nextLine();
+
+                    Usuario vendedor = new Vendedor(nome, email, telefone, extrato);
+                    Usuario.cadastrarUsuario(vendedor);
+                    COUNT++;
+                    break;
+
+                default:
+                    System.out.println("Tipo inválido. Tente novamente.");
+                    break;
+            }
+        }
+
+        System.out.println("\n=== Lista de usuários ===");
 
         Usuario.listarUsuarios();
+
     }
 }
