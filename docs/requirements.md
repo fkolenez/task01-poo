@@ -1,3 +1,11 @@
+# Trabalho - 26/05 (23:55)
+
+## Requisitos
+
+- Elaborar melhor os métodos
+- Melhorar os cadastros da main (incrementar menu)
+- Montar as menos dois relátorios
+
 # Trabalho - 24/04 (23:55)
 
 ## Requisitos
@@ -22,3 +30,4 @@ Priorizar o uso de:
 
 ### Boas práticas
 - Utilizar **Encapsulamento**
+-
