@@ -1,12 +1,10 @@
-# Trabalho - 26/05 (23:55)
+# Trabalho - 02/06 (23:55)
 
 ## Requisitos
 
 - Elaborar melhor os métodos
 - Melhorar os cadastros da main (incrementar menu)
-- Montar as menos dois relátorios
-
-# Trabalho - 24/04 (23:55)
+- Montar as menos dois relátorios Trabalho - 24/04 (23:55)
 
 ## Requisitos
 
