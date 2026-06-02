@@ -2,6 +2,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Pedido {
+    private static int NEXT_ID = 1;
+
     private int id;
     private String data;
     private String status;
@@ -10,8 +12,8 @@ public class Pedido {
     // A lista que vai guardar os itens
     private List<ItemPedido> itens;
 
-    public Pedido(int id, String data, String status) {
-        this.id = id;
+    public Pedido(String data, String status) {
+        this.id = NEXT_ID++;
         this.data = data;
         this.status = status;
         this.precoTotal = 0.0;

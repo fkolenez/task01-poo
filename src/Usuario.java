@@ -62,6 +62,17 @@ public class Usuario {
         usuarios.add(usuario);
     }
 
+    public static boolean removerUsuario(int id) {
+        for (Usuario usuario : usuarios) {
+            if (usuario.getId() == id) {
+                usuarios.remove(usuario);
+                return true;
+            }
+        }
+
+        return false;
+    }
+
     public static Usuario getById(int id) {
         for (Usuario usuario : usuarios) {
             if (usuario.getId() == id) {

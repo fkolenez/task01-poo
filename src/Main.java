@@ -48,15 +48,26 @@ public class Main {
     }
 
     public static int option() {
-        System.out.println("\nEscolha uma opção: ");
-        return Integer.parseInt(input.nextLine());
+        return option("Escolha uma opção: ");
     }
 
+    public static int option(String mensagem) {
+        System.out.println(mensagem);
+        return Integer.parseInt(input.nextLine());
+    }
     /**
      * Metodos do menu admistrador
      * */
     public static void admMenu() {
         boolean back = false;
+
+        System.out.println("Digite a senha de administrador: ");
+        String senha = input.nextLine();
+
+        if(senha != "jota") {
+            System.out.println("Senha incorreta!");
+            back = true;
+        }
 
         while(!back){
             header("Área do administrador 🎫");
@@ -72,6 +83,8 @@ public class Main {
                     break;
                 case 2:
                     Usuario.listarUsuarios();
+                case 3:
+                    removerUsuario();
                 case 0:
                     back = true;
                     break;
@@ -84,6 +97,19 @@ public class Main {
     /**
      * Metodos do menu admistrador
      * */
+    private static void removerUsuario(){
+        Usuario.listarUsuarios();
+
+        int id = option("Digite o id do usuário que vai ser removido: ");
+        boolean removido = Usuario.removerUsuario(id);
+
+        if(removido) {
+            System.out.println("Usuário removido com sucesso! ");
+        } else {
+            System.out.println("Usuário não encontrado! ");
+        }
+    }
+
     private static void cadastrarUsuario() {
         System.out.println("Selecione o tipo de usuário a ser cadastrado: ");
         System.out.println("1 - Comprador");
@@ -286,5 +312,68 @@ public class Main {
             System.out.println("Estoque: " + produto.getEstoque());
             System.out.println("----------------------");
         }
+    }
+
+    public static void realizarPedido(Comprador comprador) {
+        // id do capeta ai é dinamico e pega a data atual dinamicamente conforme o dia tb
+        Pedido pedido = new Pedido(LocalDate.now().toString(), "Em aberto");
+
+        boolean adicionandoItens = true;
+
+        while (adicionandoItens) {
+            listarProdutosDisponiveis();
+
+            System.out.println("Escolha o número do produto: ");
+            int indiceProduto = option() - 1;
+
+            List<Produto> produtos = Produto.getListaDeProdutos();
+
+            if (indiceProduto < 0 || indiceProduto >= produtos.size()) {
+                System.out.println("Produto inválido!");
+                return;
+            }
+
+            Produto produto = produtos.get(indiceProduto);
+
+            int quantidade = option("Digite a quantidade desejada: ");
+
+            if(quantidade <= 0) {
+                System.out.println("Quantidade inválida!");
+                return;
+            }
+
+            if(quantidade > produto.getEstoque()) {
+                System.out.println("Estoque insuficiente!");
+                return;
+            }
+
+            ItemPedido item = new ItemPedido(produto, quantidade);
+            pedido.adicionarItem(item);
+
+            System.out.println("Deseja adicionar outro produto?");
+            System.out.println("1 - Sim");
+            System.out.println("0 - Finalizar pedido");
+
+            int opcao = option();
+
+            // encerra o loop de adicionar novos produtos
+            if (opcao == 0) {
+                adicionandoItens = false;
+            }
+        }
+
+        // valida o preço
+        if(pedido.getPrecoTotal() > comprador.getSaldo()) {
+            System.out.println("Saldo insuficiente para finalizar o pedido.");
+            System.out.println("Total: R$ " + pedido.getPrecoTotal());
+            System.out.println("Saldo: R$ " + comprador.getSaldo());
+            return;
+        }
+
+        // atualiza o valor de saldo do comprador
+        comprador.setSaldo(comprador.getSaldo() - pedido.getPrecoTotal());
+        System.out.println("Pedido realizado com sucesso!");
+        System.out.println("Total do pedido: R$ " + pedido.getPrecoTotal());
+        System.out.println("Saldo restante: R$ " + comprador.getSaldo());
     }
 }
