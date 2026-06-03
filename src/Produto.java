@@ -20,9 +20,9 @@ public class Produto {
         listaDeProdutos.add(produto);
     }
 
-    public static boolean excluir(String nomeBusca){
-        for (Produto produto : listaDeProdutos){
-            if(produto.getNome().equalsIgnoreCase(nomeBusca)){
+    public static boolean excluir(String nomeBusca) {
+        for (Produto produto : listaDeProdutos) {
+            if (produto.getNome().equalsIgnoreCase(nomeBusca)) {
                 listaDeProdutos.remove(produto);
                 return true;
             }
@@ -64,15 +64,19 @@ public class Produto {
         return estoque;
     }
 
+    public int getIdVendedor() {
+        return idVendedor;
+    }
+
     public void setNome(String nome){
         this.nome = nome;
     }
 
-    public void setPreco(double preco){
+    public void setPreco(double preco) {
         if(preco >= 0){
             this.preco = preco;
         }else{
-            System.out.println("--- O preço não pode ser negativo. ---");
+            System.out.println("O preço não pode ser negativo. ");
         }
     }
 

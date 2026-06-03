@@ -64,7 +64,7 @@ public class Main {
         System.out.println("Digite a senha de administrador: ");
         String senha = input.nextLine();
 
-        if(senha != "jota") {
+        if(!senha.equals("jota")) {
             System.out.println("Senha incorreta!");
             back = true;
         }
@@ -74,6 +74,7 @@ public class Main {
 
             System.out.println("1 - Cadastrar novo usuário");
             System.out.println("2 - Lista todos os usuários");
+            System.out.println("3 - Banir o betinha desfuncional");
             System.out.println("0 - Sair");
             int option = option();
 
@@ -182,6 +183,8 @@ public class Main {
 
             System.out.println("1 - Cadastrar produtos");
             System.out.println("2 - Listar produtos");
+            System.out.println("3 - Relatório de pedidos em aberto");
+            System.out.println("4 - Remover produto");
             System.out.println("0 - Sair");
 
             int option = option();
@@ -192,6 +195,12 @@ public class Main {
                     break;
                 case 2:
                     listarProdutosVendedor(vendedor);
+                    break;
+                case 3:
+                    relatorioPedidosEmAberto(vendedor);
+                    break;
+                case 4:
+                    removerProduto(vendedor);
                     break;
                 case 0:
                     back = true;
@@ -205,6 +214,22 @@ public class Main {
     /**
     * Metodos do menu vendedor
     * */
+    public static void removerProduto(Vendedor vendedor) {
+        listarProdutosVendedor(vendedor);
+
+        System.out.println("Digite o nome do produto a ser excluido: ");
+        String nomeProduto = input.nextLine();
+
+        boolean removido = Produto.excluir(nomeProduto);
+
+        if(removido) {
+            System.out.println("Produto removido com sucesso! ");
+        } else {
+            System.out.println("Produto não encontrado! ");
+        }
+
+    }
+
     public static void cadastrarProduto(Vendedor vendedor) {
         header("Cadastrando um novo produto! ");
 
@@ -241,6 +266,54 @@ public class Main {
             System.out.println("Preço do produto: R$ " + produto.getPreco());
             System.out.println("Quantidade em estoque: " + produto.getEstoque());
             System.out.println("----------------------");
+        }
+    }
+
+    public static void relatorioPedidosEmAberto(Vendedor vendedor) {
+        header("Pedidos em aberto do vendedor: " + vendedor.getNome());
+
+        boolean encontrouPedido = false;
+
+        for (Pedido pedido : Pedido.getListaDePedidos()) {
+            if (!pedido.getStatus().equalsIgnoreCase("Em aberto")) {
+                continue;
+            }
+
+            boolean mostrouCabecalhoPedido = false;
+            double totalDoVendedorNoPedido = 0.0;
+
+            for (ItemPedido item : pedido.getItens()) {
+                Produto produto = item.getProduto();
+
+                if (produto.getIdVendedor() != vendedor.getId()) {
+                    continue;
+                }
+
+                if (!mostrouCabecalhoPedido) {
+                    System.out.println("\nPedido #" + pedido.getId());
+                    System.out.println("Data: " + pedido.getData());
+                    System.out.println("Status: " + pedido.getStatus());
+                    mostrouCabecalhoPedido = true;
+                    encontrouPedido = true;
+                }
+
+                double totalItem = item.calcularTotal();
+                totalDoVendedorNoPedido += totalItem;
+
+                System.out.println("- Produto: " + produto.getNome());
+                System.out.println("  Quantidade: " + item.getQuantidade());
+                System.out.println("  Preço unitário: R$ " + item.getPrecoUnitario());
+                System.out.println("  Total do item: R$ " + totalItem);
+            }
+
+            if (mostrouCabecalhoPedido) {
+                System.out.println("Total do vendedor neste pedido: R$ " + totalDoVendedorNoPedido);
+                System.out.println("----------------------");
+            }
+        }
+
+        if (!encontrouPedido) {
+            System.out.println("Nenhum pedido em aberto encontrado para este vendedor.");
         }
     }
 
@@ -282,7 +355,7 @@ public class Main {
                     listarProdutosDisponiveis();
                     break;
                 case 2:
-//                    realizarPedido(comprador);
+                    realizarPedido(comprador);
                     break;
                 case 0:
                     back = true;
@@ -372,6 +445,8 @@ public class Main {
 
         // atualiza o valor de saldo do comprador
         comprador.setSaldo(comprador.getSaldo() - pedido.getPrecoTotal());
+        Pedido.cadastrar(pedido);
+
         System.out.println("Pedido realizado com sucesso!");
         System.out.println("Total do pedido: R$ " + pedido.getPrecoTotal());
         System.out.println("Saldo restante: R$ " + comprador.getSaldo());

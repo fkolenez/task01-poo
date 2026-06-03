@@ -3,6 +3,7 @@ import java.util.List;
 
 public class Pedido {
     private static int NEXT_ID = 1;
+    private static List<Pedido> listaDePedidos = new ArrayList<>();
 
     private int id;
     private String data;
@@ -30,6 +31,14 @@ public class Pedido {
         calcularTotal();
     }
 
+    public static void cadastrar(Pedido pedido) {
+        listaDePedidos.add(pedido);
+    }
+
+    public static List<Pedido> getListaDePedidos() {
+        return listaDePedidos;
+    }
+
     private void calcularTotal() {
         double totalTemporario = 0.0;
 
@@ -54,5 +63,9 @@ public class Pedido {
 
     public String getStatus() {
         return status;
+    }
+
+    public List<ItemPedido> getItens() {
+        return itens;
     }
 }
