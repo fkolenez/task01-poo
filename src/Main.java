@@ -84,6 +84,7 @@ public class Main {
                     break;
                 case 2:
                     Usuario.listarUsuarios();
+                    break;
                 case 3:
                     removerUsuario();
                 case 0:
@@ -316,7 +317,6 @@ public class Main {
             System.out.println("Nenhum pedido em aberto encontrado para este vendedor.");
         }
     }
-
 
     public static void compradorMenu() {
         boolean back = false;
