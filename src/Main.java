@@ -6,6 +6,8 @@ public class Main {
     public static final Scanner input = new Scanner(System.in);
 
     public static void main(String[] args) {
+        jokes.edinei();
+
         boolean running = true;
         while (running) {
             menu();
@@ -20,6 +22,9 @@ public class Main {
                     break;
                 case 3:
                     compradorMenu();
+                    break;
+                case 4:
+                    piadinhasMenu();
                     break;
                 case 0:
                     running = false;
@@ -573,6 +578,10 @@ public class Main {
             }
 
             Produto produto = produtos.get(indiceProduto);
+
+            if(produto.getNome() == "edinei") {
+                jokes.edinei();
+            }
 
             int quantidade = option("Digite a quantidade desejada: ");
 
