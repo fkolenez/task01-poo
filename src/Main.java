@@ -1,17 +1,16 @@
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Scanner;
 
 public class Main {
-    public static final Scanner input = new Scanner(System.in);
-
     public static void main(String[] args) {
+        carregarDadosTemporarios();
         jokes.edinei();
 
         boolean running = true;
         while (running) {
             menu();
-            int option = option();
+            int option = ConsoleInput.option();
 
             switch (option) {
                 case 1:
@@ -34,11 +33,30 @@ public class Main {
             }
         }
 
-        input.close();
+        ConsoleInput.close();
+    }
+
+    private static void carregarDadosTemporarios() {
+        Vendedor vendedor1 = new Vendedor("Ana Vendas", "ana@market.com", "11999990001", 0.0);
+        Vendedor vendedor2 = new Vendedor("Bruno Store", "bruno@market.com", "11999990002", 0.0);
+        Comprador comprador = new Comprador("Cliente Teste", "cliente@market.com", "11999990003", 5000.0);
+
+        Produto produto1 = new Produto("Notebook", 2500.0, 5, vendedor1.getId());
+        Produto produto2 = new Produto("Mouse gamer", 150.0, 20, vendedor2.getId());
+
+        Usuario.cadastrarUsuario(vendedor1);
+        Usuario.cadastrarUsuario(vendedor2);
+        Usuario.cadastrarUsuario(comprador);
+
+        Produto.cadastrar(produto1);
+        Produto.cadastrar(produto2);
+
+        vendedor1.cadastrarNovoProduto(produto1);
+        vendedor2.cadastrarNovoProduto(produto2);
     }
 
     public static void menu() {
-        printBox(
+        BoxPrinter.printBox(
                 "ctrl alt del+ito 🤫",
                 "1 - Área do administrador",
                 "2 - Área do vendedor",
@@ -48,81 +66,11 @@ public class Main {
         );
     }
 
-    private static void header(String areaName) {
-        printBox(areaName);
-    }
-
-    private static void printBox(String title, String... lines) {
-        int width = visibleLength(title);
-
-        for (String line : lines) {
-            width = Math.max(width, visibleLength(line));
-        }
-
-        String border = "+" + repeat("-", width + 2) + "+";
-
-        System.out.println();
-        System.out.println(border);
-        printBoxLine(title, width);
-        System.out.println(border);
-
-        for (String line : lines) {
-            printBoxLine(line, width);
-        }
-
-        if (lines.length > 0) {
-            System.out.println(border);
-        }
-    }
-
-    private static void printBoxLine(String text, int width) {
-        System.out.println("| " + text + repeat(" ", width - visibleLength(text)) + " |");
-    }
-
-    private static String repeat(String value, int times) {
-        StringBuilder result = new StringBuilder();
-
-        for (int i = 0; i < times; i++) {
-            result.append(value);
-        }
-
-        return result.toString();
-    }
-
-    private static int visibleLength(String text) {
-        int length = 0;
-
-        for (int i = 0; i < text.length(); ) {
-            int codePoint = text.codePointAt(i);
-            length += charWidth(codePoint);
-            i += Character.charCount(codePoint);
-        }
-
-        return length;
-    }
-
-    private static int charWidth(int codePoint) {
-        if (Character.getType(codePoint) == Character.OTHER_SYMBOL) {
-            return 2;
-        }
-
-        return 1;
-    }
-
-    public static int option() {
-        return option("Escolha uma opção: ");
-    }
-
-    public static int option(String mensagem) {
-        System.out.print(mensagem);
-        return Integer.parseInt(input.nextLine());
-    }
-
     public static void piadinhasMenu() {
         boolean back = false;
 
         while (!back) {
-            printBox(
+            BoxPrinter.printBox(
                     "Piadinhas",
                     "1 - Roll a dice",
                     "2 - Flip a coin",
@@ -130,18 +78,18 @@ public class Main {
                     "0 - Voltar"
             );
 
-            int option = option();
+            int option = ConsoleInput.option();
 
             switch (option) {
                 case 1:
-                    printBox("Roll a dice", "Resultado: " + jokes.rollDice());
+                    BoxPrinter.printBox("Roll a dice", "Resultado: " + jokes.rollDice());
                     break;
                 case 2:
-                    header("Flip a coin");
+                    BoxPrinter.header("Flip a coin");
                     jokes.flipCoin();
                     break;
                 case 3:
-                    header("Edinei");
+                    BoxPrinter.header("Edinei");
                     jokes.edinei();
                     break;
                 case 0:
@@ -178,11 +126,46 @@ public class Main {
     }
 
     private static boolean hasProdutosDisponiveis() {
-        return !Produto.getListaDeProdutos().isEmpty();
+        for (Produto produto : Produto.getListaDeProdutos()) {
+            if (produto.getEstoque() > 0) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     private static void listaVazia() {
         System.out.println("Lista vazia");
+    }
+
+    private static void listarVendedores() {
+        BoxPrinter.header("Vendedores cadastrados");
+
+        for (Usuario usuario : Usuario.usuarios) {
+            if (usuario instanceof Vendedor) {
+                BoxPrinter.printBox(
+                        "Vendedor #" + usuario.getId(),
+                        "Nome: " + usuario.getNome()
+                );
+            }
+        }
+    }
+
+    private static void listarCompradores() {
+        BoxPrinter.header("Compradores cadastrados");
+
+        for (Usuario usuario : Usuario.usuarios) {
+            if (usuario instanceof Comprador) {
+                BoxPrinter.printBox(
+                        "Comprador #" + usuario.getId(),
+                        "Nome: " + usuario.getNome(),
+                        "Email: " + usuario.getEmail(),
+                        "Telefone: " + usuario.getTelefone(),
+                        "Tipo de usuário: " + usuario.getTipo()
+                );
+            }
+        }
     }
     /**
      * Metodos do menu admistrador
@@ -190,8 +173,7 @@ public class Main {
     public static void admMenu() {
         boolean back = false;
 
-        System.out.println("Digite a senha de administrador: ");
-        String senha = input.nextLine();
+        String senha = ConsoleInput.textOption("Digite a senha de administrador: ");
 
         if(!senha.equals("jota")) {
             System.out.println("Senha incorreta!");
@@ -199,14 +181,14 @@ public class Main {
         }
 
         while(!back){
-            printBox(
+            BoxPrinter.printBox(
                     "Área do administrador 🎫",
                     "1 - Cadastrar novo usuário",
                     "2 - Lista todos os usuários",
                     "3 - Banir o betinha desfuncional",
                     "0 - Sair"
             );
-            int option = option();
+            int option = ConsoleInput.option();
 
             switch (option) {
                 case 1:
@@ -217,6 +199,7 @@ public class Main {
                     break;
                 case 3:
                     removerUsuario();
+                    break;
                 case 0:
                     back = true;
                     break;
@@ -235,7 +218,17 @@ public class Main {
             return;
         }
 
-        Usuario.listarUsuarios();
+        BoxPrinter.header("Usuários cadastrados");
+
+        for (Usuario usuario : Usuario.usuarios) {
+            BoxPrinter.printBox(
+                    "Usuário #" + usuario.getId(),
+                    "Nome: " + usuario.getNome(),
+                    "Email: " + usuario.getEmail(),
+                    "Telefone: " + usuario.getTelefone(),
+                    "Tipo de usuário: " + usuario.getTipo()
+            );
+        }
     }
 
     private static void removerUsuario(){
@@ -246,7 +239,24 @@ public class Main {
 
         listarUsuarios();
 
-        int id = option("Digite o id do usuário que vai ser removido: ");
+        int id = ConsoleInput.option("Digite o id do usuário que vai ser removido: ");
+        Usuario usuario = Usuario.getById(id);
+
+        if (usuario == null) {
+            System.out.println("Usuário não encontrado! ");
+            return;
+        }
+
+        if (usuarioPossuiPedidoAtivo(usuario)) {
+            System.out.println("Usuário possui pedido ativo e não pode ser removido agora.");
+            return;
+        }
+
+        if (usuario instanceof Vendedor && !((Vendedor) usuario).getListaDeProdutosVendedor().isEmpty()) {
+            System.out.println("Vendedor possui produtos cadastrados. Remova os produtos antes de remover o vendedor.");
+            return;
+        }
+
         boolean removido = Usuario.removerUsuario(id);
 
         if(removido) {
@@ -257,44 +267,46 @@ public class Main {
     }
 
     private static void cadastrarUsuario() {
-        printBox(
+        BoxPrinter.printBox(
                 "Cadastro de usuário",
                 "1 - Comprador",
                 "2 - Vendedor"
         );
 
-        int type = option();
+        int type = ConsoleInput.option();
 
-        System.out.print("Nome: ");
-        String nome = input.nextLine();
+        if (type != 1 && type != 2) {
+            System.out.println("Tipo inválido. Tente novamente.");
+            return;
+        }
 
-        System.out.print("Email: ");
-        String email = input.nextLine();
-
-        System.out.print("Telefone: ");
-        String telefone = input.nextLine();
+        String nome = ConsoleInput.textOption("Nome: ");
+        String email = ConsoleInput.textOption("Email: ");
+        String telefone = ConsoleInput.textOption("Telefone: ");
 
         switch (type) {
             case 1:
-                System.out.print("Saldo do comprador: ");
-                double saldo = input.nextDouble();
-                input.nextLine();
+                double saldo = ConsoleInput.decimalOption("Saldo do comprador: ");
+
+                if (saldo < 0) {
+                    System.out.println("Saldo não pode ser negativo.");
+                    return;
+                }
 
                 Usuario comprador = new Comprador(nome, email, telefone, saldo);
                 Usuario.cadastrarUsuario(comprador);
                 break;
 
             case 2:
-                System.out.print("Extrato do vendedor: ");
-                double extrato = input.nextDouble();
-                input.nextLine();
+                double extrato = ConsoleInput.decimalOption("Extrato do vendedor: ");
+
+                if (extrato < 0) {
+                    System.out.println("Extrato não pode ser negativo.");
+                    return;
+                }
 
                 Usuario vendedor = new Vendedor(nome, email, telefone, extrato);
                 Usuario.cadastrarUsuario(vendedor);
-                break;
-
-            default:
-                System.out.println("Tipo inválido. Tente novamente.");
                 break;
         }
     }
@@ -311,35 +323,42 @@ public class Main {
                 return;
             }
 
-            header("Área do vendedor 💳");
-            Usuario.listarVendedores();
+            BoxPrinter.header("Área do vendedor 💳");
+            listarVendedores();
 
-            int idVendedor = option("Selecione o vendedor: ");
+            int idVendedor = ConsoleInput.option("Selecione o vendedor ou 0 para voltar: ");
+
+            if (idVendedor == 0) {
+                back = true;
+                continue;
+            }
 
             Usuario usuario = Usuario.getById(idVendedor);
 
             if (usuario == null) {
                 System.out.println("Usuário não encontrado!");
-                return;
+                continue;
             }
 
             if (!(usuario instanceof Vendedor)) {
                 System.out.println("Usuário selecionado não pode executar ações nesse menu!");
-                return;
+                continue;
             }
 
             Vendedor vendedor = (Vendedor) usuario;
 
-            printBox(
+            BoxPrinter.printBox(
                     "Menu do vendedor: "+vendedor.getNome(),
                     "1 - Cadastrar produtos",
                     "2 - Listar produtos",
-                    "3 - Relatório de pedidos em aberto",
+                    "3 - Relatório de pedidos pagos",
                     "4 - Remover produto",
+                    "5 - Visualizar extrato",
+                    "6 - Concluir pedido pago",
                     "0 - Sair"
             );
 
-            int option = option();
+            int option = ConsoleInput.option();
 
             switch (option) {
                 case 1:
@@ -349,10 +368,16 @@ public class Main {
                     listarProdutosVendedor(vendedor);
                     break;
                 case 3:
-                    relatorioPedidosEmAberto(vendedor);
+                    relatorioPedidosPagos(vendedor);
                     break;
                 case 4:
                     removerProduto(vendedor);
+                    break;
+                case 5:
+                    visualizarExtrato(vendedor);
+                    break;
+                case 6:
+                    concluirPedido(vendedor);
                     break;
                 case 0:
                     back = true;
@@ -374,12 +399,23 @@ public class Main {
 
         listarProdutosVendedor(vendedor);
 
-        System.out.println("Digite o nome do produto a ser excluido: ");
-        String nomeProduto = input.nextLine();
+        String nomeProduto = ConsoleInput.textOption("Digite o nome do produto a ser excluido: ");
+        Produto produto = buscarProdutoDoVendedorPorNome(vendedor, nomeProduto);
 
-        boolean removido = Produto.excluir(nomeProduto);
+        if (produto == null) {
+            System.out.println("Produto não encontrado! ");
+            return;
+        }
 
-        if(removido) {
+        if (produtoPossuiPedidoAtivo(produto)) {
+            System.out.println("Este produto possui pedido ativo e não pode ser removido agora.");
+            return;
+        }
+
+        boolean removidoDoCatalogo = Produto.getListaDeProdutos().remove(produto);
+        boolean removidoDoVendedor = vendedor.getListaDeProdutosVendedor().remove(produto);
+
+        if(removidoDoCatalogo && removidoDoVendedor) {
             System.out.println("Produto removido com sucesso! ");
         } else {
             System.out.println("Produto não encontrado! ");
@@ -387,18 +423,32 @@ public class Main {
 
     }
 
+    public static void visualizarExtrato(Vendedor vendedor) {
+        BoxPrinter.printBox(
+                "Extrato do vendedor",
+                "Nome: " + vendedor.getNome(),
+                "Extrato: R$ " + vendedor.getExtrato()
+        );
+    }
+
     public static void cadastrarProduto(Vendedor vendedor) {
-        header("Cadastrando um novo produto! ");
+        BoxPrinter.header("Cadastrando um novo produto! ");
 
-        System.out.print("Digite o nome do produto: ");
-        String nome = input.nextLine();
+        String nome = ConsoleInput.textOption("Digite o nome do produto: ");
 
-        System.out.print("Digite o preco do produto: ");
-        double preco = input.nextDouble();
+        double preco = ConsoleInput.decimalOption("Digite o preco do produto: ");
 
-        System.out.print("Digite a quantidade em estoque: ");
-        int estoque = input.nextInt();
-        input.nextLine();
+        if (preco <= 0) {
+            System.out.println("Preço deve ser maior que zero.");
+            return;
+        }
+
+        int estoque = ConsoleInput.option("Digite a quantidade em estoque: ");
+
+        if (estoque <= 0) {
+            System.out.println("Estoque deve ser maior que zero.");
+            return;
+        }
 
         Produto produto = new Produto(nome, preco, estoque, vendedor.getId());
 
@@ -416,10 +466,10 @@ public class Main {
             return;
         }
 
-        header("Produtos do vendedor: " + vendedor.getNome());
+        BoxPrinter.header("Produtos do vendedor: " + vendedor.getNome());
 
         for (Produto produto : produtos) {
-            printBox(
+            BoxPrinter.printBox(
                     produto.getNome(),
                     "Preço do produto: R$ " + produto.getPreco(),
                     "Quantidade em estoque: " + produto.getEstoque()
@@ -427,56 +477,103 @@ public class Main {
         }
     }
 
-    public static void relatorioPedidosEmAberto(Vendedor vendedor) {
+    public static void relatorioPedidosPagos(Vendedor vendedor) {
         if (Pedido.getListaDePedidos().isEmpty()) {
             listaVazia();
             return;
         }
 
         boolean encontrouPedido = false;
-        header("Pedidos em aberto do vendedor: " + vendedor.getNome());
+        BoxPrinter.header("Pedidos pagos do vendedor: " + vendedor.getNome());
 
         for (Pedido pedido : Pedido.getListaDePedidos()) {
-            if (!pedido.getStatus().equalsIgnoreCase("Em aberto")) {
+            if (pedido.getStatus() != Pedido.StatusPedido.VALOR_RETIDO) {
                 continue;
             }
 
-            boolean mostrouCabecalhoPedido = false;
+            List<String> linhasPedido = new ArrayList<>();
+            linhasPedido.add("Data: " + pedido.getData());
+            linhasPedido.add("Status: " + pedido.getStatus());
+
             double totalDoVendedorNoPedido = 0.0;
 
             for (ItemPedido item : pedido.getItens()) {
                 Produto produto = item.getProduto();
 
-                if (produto.getIdVendedor() != vendedor.getId()) {
+                if (produto.getIdVendedor() != vendedor.getId()
+                        || item.getStatus() != ItemPedido.StatusItemPedido.VALOR_RETIDO) {
                     continue;
-                }
-
-                if (!mostrouCabecalhoPedido) {
-                    System.out.println("\nPedido #" + pedido.getId());
-                    System.out.println("Data: " + pedido.getData());
-                    System.out.println("Status: " + pedido.getStatus());
-                    mostrouCabecalhoPedido = true;
-                    encontrouPedido = true;
                 }
 
                 double totalItem = item.calcularTotal();
                 totalDoVendedorNoPedido += totalItem;
 
-                System.out.println("- Produto: " + produto.getNome());
-                System.out.println("  Quantidade: " + item.getQuantidade());
-                System.out.println("  Preço unitário: R$ " + item.getPrecoUnitario());
-                System.out.println("  Total do item: R$ " + totalItem);
+                linhasPedido.add("Produto: " + produto.getNome());
+                linhasPedido.add("Quantidade: " + item.getQuantidade());
+                linhasPedido.add("Preço unitário: R$ " + item.getPrecoUnitario());
+                linhasPedido.add("Total do item: R$ " + totalItem);
+                linhasPedido.add("Status do item: " + item.getStatus());
             }
 
-            if (mostrouCabecalhoPedido) {
-                System.out.println("Total do vendedor neste pedido: R$ " + totalDoVendedorNoPedido);
-                System.out.println("----------------------");
+            if (totalDoVendedorNoPedido > 0) {
+                linhasPedido.add("Total do vendedor neste pedido: R$ " + totalDoVendedorNoPedido);
+                BoxPrinter.printBox("Pedido #" + pedido.getId(), linhasPedido.toArray(new String[0]));
+                encontrouPedido = true;
             }
         }
 
         if (!encontrouPedido) {
-            System.out.println("Nenhum pedido em aberto encontrado para este vendedor.");
+            System.out.println("Nenhum pedido pago encontrado para este vendedor.");
         }
+    }
+
+    public static void concluirPedido(Vendedor vendedor) {
+        List<Pedido> pedidosPagos = pedidosPendentesDoVendedor(vendedor);
+
+        if (pedidosPagos.isEmpty()) {
+            System.out.println("Nenhum pedido pago para concluir.");
+            return;
+        }
+
+        BoxPrinter.header("Pedidos pagos para concluir");
+
+        for (Pedido pedido : pedidosPagos) {
+            double totalPendenteDoVendedor = totalPendenteDoVendedorNoPedido(pedido, vendedor);
+
+            BoxPrinter.printBox(
+                    "Pedido #" + pedido.getId(),
+                    "Comprador: " + pedido.getComprador().getNome(),
+                    "Data: " + pedido.getData(),
+                    "Total pendente deste vendedor: R$ " + totalPendenteDoVendedor,
+                    "Status: " + pedido.getStatus()
+            );
+        }
+
+        int idPedido = ConsoleInput.option("Digite o id do pedido que deseja concluir: ");
+        Pedido pedido = buscarPedidoPorId(idPedido);
+
+        if (pedido == null || !pedidoPossuiItemPendenteDoVendedor(pedido, vendedor)) {
+            System.out.println("Pedido não encontrado para este vendedor.");
+            return;
+        }
+
+        double valorLiberado = totalPendenteDoVendedorNoPedido(pedido, vendedor);
+
+        Escrow escrow = new Escrow();
+        if (!escrow.liberarFundos(pedido, vendedor)) {
+            System.out.println("Este pedido não pode ser concluído.");
+            return;
+        }
+
+        vendedor.setExtrato(vendedor.getExtrato() + valorLiberado);
+
+        BoxPrinter.printBox(
+                "Pedido concluído",
+                "Pedido #" + pedido.getId(),
+                "Valor liberado: R$ " + valorLiberado,
+                "Status: " + pedido.getStatus(),
+                "Extrato atual: R$ " + vendedor.getExtrato()
+        );
     }
 
     public static void compradorMenu() {
@@ -488,33 +585,41 @@ public class Main {
                 return;
             }
 
-            header("Área do comprador 🛒");
-            Usuario.listarCompradores();
+            BoxPrinter.header("Área do comprador 🛒");
+            listarCompradores();
 
-            int idComprador = option("Selecione o comprador: ");
+            int idComprador = ConsoleInput.option("Selecione o comprador ou 0 para voltar: ");
+
+            if (idComprador == 0) {
+                back = true;
+                continue;
+            }
 
             Usuario usuario = Usuario.getById(idComprador);
 
             if (usuario == null) {
                 System.out.println("Usuário não encontrado!");
-                return;
+                continue;
             }
 
             if (!(usuario instanceof Comprador)) {
                 System.out.println("Usuário selecionado não pode executar ações nesse menu!");
-                return;
+                continue;
             }
 
             Comprador comprador = (Comprador) usuario;
 
-            printBox(
+            BoxPrinter.printBox(
                     "Menu do comprador: "+comprador.getNome(),
                     "1 - Visualizar produtos",
                     "2 - Realizar pedido",
+                    "3 - Pagar pedido",
+                    "4 - Visualizar saldo",
+                    "5 - Cancelar pedido",
                     "0 - Sair"
             );
 
-            int option = option();
+            int option = ConsoleInput.option();
 
             switch (option) {
                 case 1:
@@ -522,6 +627,15 @@ public class Main {
                     break;
                 case 2:
                     realizarPedido(comprador);
+                    break;
+                case 3:
+                    pagarPedido(comprador);
+                    break;
+                case 4:
+                    visualizarSaldo(comprador);
+                    break;
+                case 5:
+                    cancelarPedido(comprador);
                     break;
                 case 0:
                     back = true;
@@ -534,19 +648,19 @@ public class Main {
 
     // Metodos menu comprador
     public static void listarProdutosDisponiveis() {
-        List<Produto> produtos = Produto.getListaDeProdutos();
+        List<Produto> produtos = produtosDisponiveis();
 
         if (produtos.isEmpty()) {
             listaVazia();
             return;
         }
 
-        header("Produtos disponíveis");
+        BoxPrinter.header("Produtos disponíveis");
 
         for (int i = 0; i < produtos.size(); i++) {
             Produto produto = produtos.get(i);
 
-            printBox(
+            BoxPrinter.printBox(
                     (i + 1) + " - " + produto.getNome(),
                     "Preço: R$ " + produto.getPreco(),
                     "Estoque: " + produto.getEstoque()
@@ -555,8 +669,7 @@ public class Main {
     }
 
     public static void realizarPedido(Comprador comprador) {
-        // id do capeta ai é dinamico e pega a data atual dinamicamente conforme o dia tb
-        Pedido pedido = new Pedido(LocalDate.now().toString(), "Em aberto");
+        Pedido pedido = new Pedido(LocalDate.now().toString(), comprador);
 
         boolean adicionandoItens = true;
 
@@ -566,11 +679,10 @@ public class Main {
                 return;
             }
 
+            List<Produto> produtos = produtosDisponiveis();
             listarProdutosDisponiveis();
 
-            int indiceProduto = option("Escolha o número do produto: ") - 1;
-
-            List<Produto> produtos = Produto.getListaDeProdutos();
+            int indiceProduto = ConsoleInput.option("Escolha o número do produto: ") - 1;
 
             if (indiceProduto < 0 || indiceProduto >= produtos.size()) {
                 System.out.println("Produto inválido!");
@@ -579,18 +691,20 @@ public class Main {
 
             Produto produto = produtos.get(indiceProduto);
 
-            if(produto.getNome() == "edinei") {
+            if (produto.getNome().equalsIgnoreCase("edinei")){
                 jokes.edinei();
             }
 
-            int quantidade = option("Digite a quantidade desejada: ");
+            int quantidade = ConsoleInput.option("Digite a quantidade desejada: ");
 
             if(quantidade <= 0) {
                 System.out.println("Quantidade inválida!");
                 return;
             }
 
-            if(quantidade > produto.getEstoque()) {
+            int quantidadeNoPedido = quantidadeDoProdutoNoPedido(pedido, produto);
+
+            if(quantidade + quantidadeNoPedido > produto.getEstoque()) {
                 System.out.println("Estoque insuficiente!");
                 return;
             }
@@ -598,13 +712,13 @@ public class Main {
             ItemPedido item = new ItemPedido(produto, quantidade);
             pedido.adicionarItem(item);
 
-            printBox(
+            BoxPrinter.printBox(
                     "Deseja adicionar outro produto?",
                     "1 - Sim",
                     "0 - Finalizar pedido"
             );
 
-            int opcao = option();
+            int opcao = ConsoleInput.option();
 
             // encerra o loop de adicionar novos produtos
             if (opcao == 0) {
@@ -612,20 +726,363 @@ public class Main {
             }
         }
 
-        // valida o preço
-        if(pedido.getPrecoTotal() > comprador.getSaldo()) {
-            System.out.println("Saldo insuficiente para finalizar o pedido.");
-            System.out.println("Total: R$ " + pedido.getPrecoTotal());
-            System.out.println("Saldo: R$ " + comprador.getSaldo());
+        Pedido.cadastrar(pedido);
+
+        List<String> resumoPedido = new ArrayList<>();
+        resumoPedido.add("Pedido #" + pedido.getId());
+        resumoPedido.add("Data: " + pedido.getData());
+        resumoPedido.add("Status: " + pedido.getStatus());
+        resumoPedido.add("Comprador: " + comprador.getNome());
+        resumoPedido.add("Itens:");
+
+        for (ItemPedido item : pedido.getItens()) {
+            Produto produto = item.getProduto();
+            resumoPedido.add("- Produto: " + produto.getNome());
+            resumoPedido.add("- Quantidade: " + item.getQuantidade());
+            resumoPedido.add("- Preço unitário: R$ " + item.getPrecoUnitario());
+            resumoPedido.add("- Total do item: R$ " + item.calcularTotal());
+        }
+
+        resumoPedido.add("Total do pedido: R$ " + pedido.getPrecoTotal());
+        resumoPedido.add("Saldo atual: R$ " + comprador.getSaldo());
+
+        BoxPrinter.printBox("Pedido criado! Pague para confirmar a compra.", resumoPedido.toArray(new String[0]));
+    }
+
+    public static void pagarPedido(Comprador comprador) {
+        List<Pedido> pedidosPendentes = pedidosDoCompradorPorStatus(
+                comprador,
+                Pedido.StatusPedido.AGUARDANDO_PAGAMENTO
+        );
+
+        if (pedidosPendentes.isEmpty()) {
+            System.out.println("Nenhum pedido aguardando pagamento.");
             return;
         }
 
-        // atualiza o valor de saldo do comprador
-        comprador.setSaldo(comprador.getSaldo() - pedido.getPrecoTotal());
-        Pedido.cadastrar(pedido);
+        BoxPrinter.header("Pedidos aguardando pagamento");
 
-        System.out.println("Pedido realizado com sucesso!");
-        System.out.println("Total do pedido: R$ " + pedido.getPrecoTotal());
-        System.out.println("Saldo restante: R$ " + comprador.getSaldo());
+        for (Pedido pedido : pedidosPendentes) {
+            BoxPrinter.printBox(
+                    "Pedido #" + pedido.getId(),
+                    "Data: " + pedido.getData(),
+                    "Total: R$ " + pedido.getPrecoTotal(),
+                    "Status: " + pedido.getStatus()
+            );
+        }
+
+        int idPedido = ConsoleInput.option("Digite o id do pedido que deseja pagar: ");
+        Pedido pedido = buscarPedidoDoComprador(idPedido, comprador);
+
+        if (pedido == null) {
+            System.out.println("Pedido não encontrado para este comprador.");
+            return;
+        }
+
+        if (pedido.getStatus() != Pedido.StatusPedido.AGUARDANDO_PAGAMENTO) {
+            System.out.println("Este pedido não está aguardando pagamento.");
+            return;
+        }
+
+        if(pedido.getPrecoTotal() > comprador.getSaldo()) {
+            BoxPrinter.printBox(
+                    "Saldo insuficiente",
+                    "Total: R$ " + pedido.getPrecoTotal(),
+                    "Saldo: R$ " + comprador.getSaldo()
+            );
+            return;
+        }
+
+        if (!pedidoPossuiEstoqueDisponivel(pedido)) {
+            System.out.println("Estoque insuficiente para pagar este pedido.");
+            return;
+        }
+
+        Escrow escrow = new Escrow();
+        if (!escrow.reterFundos(pedido)) {
+            System.out.println("Não foi possível reter os fundos do pedido.");
+            return;
+        }
+
+        comprador.setSaldo(comprador.getSaldo() - pedido.getPrecoTotal());
+
+        for (ItemPedido item : pedido.getItens()) {
+            Produto produto = item.getProduto();
+            produto.setEstoque(produto.getEstoque() - item.getQuantidade());
+        }
+
+        List<String> resumoPedido = new ArrayList<>();
+        resumoPedido.add("Pedido #" + pedido.getId());
+        resumoPedido.add("Data: " + pedido.getData());
+        resumoPedido.add("Status: " + pedido.getStatus());
+        resumoPedido.add("Comprador: " + comprador.getNome());
+        resumoPedido.add("Itens:");
+
+        for (ItemPedido item : pedido.getItens()) {
+            Produto produto = item.getProduto();
+            resumoPedido.add("- Produto: " + produto.getNome());
+            resumoPedido.add("- Quantidade: " + item.getQuantidade());
+            resumoPedido.add("- Preço unitário: R$ " + item.getPrecoUnitario());
+            resumoPedido.add("- Total do item: R$ " + item.calcularTotal());
+            resumoPedido.add("- Estoque restante: " + produto.getEstoque());
+        }
+
+        resumoPedido.add("Total do pedido: R$ " + pedido.getPrecoTotal());
+        resumoPedido.add("Saldo restante: R$ " + comprador.getSaldo());
+
+        BoxPrinter.printBox("Pedido pago com sucesso!", resumoPedido.toArray(new String[0]));
+    }
+
+    public static void visualizarSaldo(Comprador comprador) {
+        BoxPrinter.printBox(
+                "Saldo do comprador",
+                "Nome: " + comprador.getNome(),
+                "Saldo: R$ " + comprador.getSaldo()
+        );
+    }
+
+    public static void cancelarPedido(Comprador comprador) {
+        List<Pedido> pedidosCancelaveis = pedidosCancelaveisDoComprador(comprador);
+
+        if (pedidosCancelaveis.isEmpty()) {
+            System.out.println("Nenhum pedido disponível para cancelamento.");
+            return;
+        }
+
+        BoxPrinter.header("Pedidos disponíveis para cancelamento");
+
+        for (Pedido pedido : pedidosCancelaveis) {
+            BoxPrinter.printBox(
+                    "Pedido #" + pedido.getId(),
+                    "Data: " + pedido.getData(),
+                    "Total: R$ " + pedido.getPrecoTotal(),
+                    "Status: " + pedido.getStatus()
+            );
+        }
+
+        int idPedido = ConsoleInput.option("Digite o id do pedido que deseja cancelar: ");
+        Pedido pedido = buscarPedidoDoComprador(idPedido, comprador);
+
+        if (pedido == null) {
+            System.out.println("Pedido não encontrado para este comprador.");
+            return;
+        }
+
+        Pedido.StatusPedido statusAntesCancelamento = pedido.getStatus();
+        Escrow escrow = new Escrow();
+
+        if (!escrow.cancelarPedido(pedido)) {
+            System.out.println("Este pedido não pode ser cancelado.");
+            return;
+        }
+
+        if (statusAntesCancelamento == Pedido.StatusPedido.VALOR_RETIDO) {
+            comprador.setSaldo(comprador.getSaldo() + pedido.getPrecoTotal());
+            devolverEstoque(pedido);
+        }
+
+        BoxPrinter.printBox(
+                "Pedido cancelado",
+                "Pedido #" + pedido.getId(),
+                "Status: " + pedido.getStatus(),
+                "Saldo atual: R$ " + comprador.getSaldo()
+        );
+    }
+
+    private static int quantidadeDoProdutoNoPedido(Pedido pedido, Produto produtoBusca) {
+        int quantidadeTotal = 0;
+
+        for (ItemPedido item : pedido.getItens()) {
+            Produto produto = item.getProduto();
+
+            if (produto == produtoBusca) {
+                quantidadeTotal += item.getQuantidade();
+            }
+        }
+
+        return quantidadeTotal;
+    }
+
+    private static boolean pedidoPossuiEstoqueDisponivel(Pedido pedido) {
+        for (ItemPedido item : pedido.getItens()) {
+            Produto produto = item.getProduto();
+            int quantidadeTotal = quantidadeDoProdutoNoPedido(pedido, produto);
+
+            if (quantidadeTotal > produto.getEstoque()) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    private static List<Produto> produtosDisponiveis() {
+        List<Produto> produtosDisponiveis = new ArrayList<>();
+
+        for (Produto produto : Produto.getListaDeProdutos()) {
+            if (produto.getEstoque() > 0) {
+                produtosDisponiveis.add(produto);
+            }
+        }
+
+        return produtosDisponiveis;
+    }
+
+    private static Produto buscarProdutoDoVendedorPorNome(Vendedor vendedor, String nomeProduto) {
+        for (Produto produto : vendedor.getListaDeProdutosVendedor()) {
+            if (produto.getNome().equalsIgnoreCase(nomeProduto)) {
+                return produto;
+            }
+        }
+
+        return null;
+    }
+
+    private static boolean produtoPossuiPedidoAtivo(Produto produtoBusca) {
+        for (Pedido pedido : Pedido.getListaDePedidos()) {
+            boolean pedidoAtivo = pedido.getStatus() == Pedido.StatusPedido.AGUARDANDO_PAGAMENTO
+                    || pedido.getStatus() == Pedido.StatusPedido.VALOR_RETIDO;
+
+            if (!pedidoAtivo) {
+                continue;
+            }
+
+            for (ItemPedido item : pedido.getItens()) {
+                if (item.getProduto() == produtoBusca) {
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
+
+    private static boolean usuarioPossuiPedidoAtivo(Usuario usuarioBusca) {
+        for (Pedido pedido : Pedido.getListaDePedidos()) {
+            boolean pedidoAtivo = pedido.getStatus() == Pedido.StatusPedido.AGUARDANDO_PAGAMENTO
+                    || pedido.getStatus() == Pedido.StatusPedido.VALOR_RETIDO;
+
+            if (!pedidoAtivo) {
+                continue;
+            }
+
+            if (pedido.getComprador().getId() == usuarioBusca.getId()) {
+                return true;
+            }
+
+            if (usuarioBusca instanceof Vendedor) {
+                for (ItemPedido item : pedido.getItens()) {
+                    if (item.getProduto().getIdVendedor() == usuarioBusca.getId()) {
+                        return true;
+                    }
+                }
+            }
+        }
+
+        return false;
+    }
+
+    private static List<Pedido> pedidosDoCompradorPorStatus(Comprador comprador, Pedido.StatusPedido status) {
+        List<Pedido> pedidos = new ArrayList<>();
+
+        for (Pedido pedido : Pedido.getListaDePedidos()) {
+            if (pedido.getComprador().getId() == comprador.getId() && pedido.getStatus() == status) {
+                pedidos.add(pedido);
+            }
+        }
+
+        return pedidos;
+    }
+
+    private static List<Pedido> pedidosCancelaveisDoComprador(Comprador comprador) {
+        List<Pedido> pedidos = new ArrayList<>();
+
+        for (Pedido pedido : Pedido.getListaDePedidos()) {
+            boolean pertenceAoComprador = pedido.getComprador().getId() == comprador.getId();
+            boolean podeCancelar = pedido.getStatus() == Pedido.StatusPedido.AGUARDANDO_PAGAMENTO
+                    || (pedido.getStatus() == Pedido.StatusPedido.VALOR_RETIDO && !pedidoPossuiItemConcluido(pedido));
+
+            if (pertenceAoComprador && podeCancelar) {
+                pedidos.add(pedido);
+            }
+        }
+
+        return pedidos;
+    }
+
+    private static boolean pedidoPossuiItemConcluido(Pedido pedido) {
+        for (ItemPedido item : pedido.getItens()) {
+            if (item.getStatus() == ItemPedido.StatusItemPedido.CONCLUIDO) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private static List<Pedido> pedidosPendentesDoVendedor(Vendedor vendedor) {
+        List<Pedido> pedidos = new ArrayList<>();
+
+        for (Pedido pedido : Pedido.getListaDePedidos()) {
+            if (pedido.getStatus() == Pedido.StatusPedido.VALOR_RETIDO
+                    && pedidoPossuiItemPendenteDoVendedor(pedido, vendedor)) {
+                pedidos.add(pedido);
+            }
+        }
+
+        return pedidos;
+    }
+
+    private static boolean pedidoPossuiItemPendenteDoVendedor(Pedido pedido, Vendedor vendedor) {
+        for (ItemPedido item : pedido.getItens()) {
+            if (item.getProduto().getIdVendedor() == vendedor.getId()
+                    && item.getStatus() == ItemPedido.StatusItemPedido.VALOR_RETIDO) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private static double totalPendenteDoVendedorNoPedido(Pedido pedido, Vendedor vendedor) {
+        double total = 0.0;
+
+        for (ItemPedido item : pedido.getItens()) {
+            Produto produto = item.getProduto();
+
+            if (produto.getIdVendedor() == vendedor.getId()
+                    && item.getStatus() == ItemPedido.StatusItemPedido.VALOR_RETIDO) {
+                total += item.calcularTotal();
+            }
+        }
+
+        return total;
+    }
+
+    private static void devolverEstoque(Pedido pedido) {
+        for (ItemPedido item : pedido.getItens()) {
+            Produto produto = item.getProduto();
+            produto.setEstoque(produto.getEstoque() + item.getQuantidade());
+        }
+    }
+
+    private static Pedido buscarPedidoDoComprador(int idPedido, Comprador comprador) {
+        for (Pedido pedido : Pedido.getListaDePedidos()) {
+            if (pedido.getId() == idPedido && pedido.getComprador().getId() == comprador.getId()) {
+                return pedido;
+            }
+        }
+
+        return null;
+    }
+
+    private static Pedido buscarPedidoPorId(int idPedido) {
+        for (Pedido pedido : Pedido.getListaDePedidos()) {
+            if (pedido.getId() == idPedido) {
+                return pedido;
+            }
+        }
+
+        return null;
     }
 }

@@ -11,8 +11,8 @@ public class Produto {
 
     public Produto(String nome, double preco, int estoque, int idVendedor){
         this.nome = nome;
-        this.preco = preco;
-        this.estoque = estoque;
+        setPreco(preco);
+        setEstoque(estoque);
         this.idVendedor = idVendedor;
     }
 
@@ -81,7 +81,7 @@ public class Produto {
     }
 
     public void setEstoque(int estoque){
-        if (estoque >=0){
+        if (estoque >= 0){
             this.estoque = estoque;
         }
     }

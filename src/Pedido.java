@@ -7,18 +7,25 @@ public class Pedido {
 
     private int id;
     private String data;
-    private String status;
+    private StatusPedido status;
     private double precoTotal;
-
-    // A lista que vai guardar os itens
+    private Comprador comprador;
     private List<ItemPedido> itens;
 
-    public Pedido(String data, String status) {
+    public Pedido(String data, Comprador comprador) {
         this.id = NEXT_ID++;
         this.data = data;
-        this.status = status;
+        this.comprador = comprador;
+        this.status = StatusPedido.AGUARDANDO_PAGAMENTO;
         this.precoTotal = 0.0;
         this.itens = new ArrayList<>();
+    }
+
+    public enum StatusPedido {
+        AGUARDANDO_PAGAMENTO,
+        VALOR_RETIDO,
+        CONCLUIDO,
+        CANCELADO
     }
 
     public void adicionarItem(ItemPedido item) {
@@ -61,7 +68,15 @@ public class Pedido {
         return data;
     }
 
-    public String getStatus() {
+    public Comprador getComprador() {
+        return comprador;
+    }
+
+    public void setStatus(StatusPedido status) {
+        this.status = status;
+    }
+
+    public StatusPedido getStatus() {
         return status;
     }
 
