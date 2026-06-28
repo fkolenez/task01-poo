@@ -616,6 +616,7 @@ public class Main {
                     "3 - Pagar pedido",
                     "4 - Visualizar saldo",
                     "5 - Cancelar pedido",
+                    "6 - Adicionar saldo",
                     "0 - Sair"
             );
 
@@ -637,6 +638,8 @@ public class Main {
                 case 5:
                     cancelarPedido(comprador);
                     break;
+                case 6:
+                    adicionarSaldo(comprador);
                 case 0:
                     back = true;
                     break;
@@ -838,6 +841,17 @@ public class Main {
                 "Saldo do comprador",
                 "Nome: " + comprador.getNome(),
                 "Saldo: R$ " + comprador.getSaldo()
+        );
+    }
+
+    public static void adicionarSaldo(Comprador comprador) {
+        double saldoAdicionado = ConsoleInput.decimalOption("Quanto de saldo deseja adicionar?");
+        comprador.setSaldo(saldoAdicionado+comprador.getSaldo());
+
+        BoxPrinter.printBox(
+                "Saldo adicionado com sucesso!",
+                "Valor adicionado: R$ " + saldoAdicionado,
+                "Saldo atual: R$ " + comprador.getSaldo()
         );
     }
 
